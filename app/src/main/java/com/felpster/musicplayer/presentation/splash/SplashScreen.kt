@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -13,9 +14,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.felpster.core_ui.R
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    onComplete: () -> Unit
+) {
+    LaunchedEffect(true) {
+        delay(5000) // Simulate loading time (5 seconds)
+        onComplete() // Notify that the splash screen is complete
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -40,6 +49,6 @@ fun SplashScreen() {
 @Composable
 fun SplashScreenPreview() {
     MusicPlayerTheme {
-        SplashScreen()
+        SplashScreen(){}
     }
 }
