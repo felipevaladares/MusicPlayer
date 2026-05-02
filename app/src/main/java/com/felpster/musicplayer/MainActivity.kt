@@ -4,15 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.presentation.home.HomeScreen
+import com.felpster.musicplayer.presentation.splash.SplashScreen
+
+sealed class Destination(val route: String) {
+    object Home: Destination("home_screen")
+    object Splash: Destination("splash_screen")
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,29 +28,35 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MusicPlayerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavHost()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun AppNavHost(navController: NavHostController = rememberNavController()) {
+    NavHost(navController = navController, startDestination = Destination.Splash.route) {
+        composable(Destination.Splash.route) {
+            SplashScreen{
+                navController.navigate(Destination.Home.route) {
+                    popUpTo(Destination.Splash.route) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+
+        composable(Destination.Home.route) {
+            HomeScreen()
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainPreview() {
     MusicPlayerTheme {
-        Greeting("Olivia")
+        AppNavHost()
     }
 }
