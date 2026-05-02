@@ -1,4 +1,4 @@
-package com.felpster.musicplayer.ui.theme
+package com.felpster.core_ui.theme
 
 import androidx.compose.ui.graphics.Color
 
