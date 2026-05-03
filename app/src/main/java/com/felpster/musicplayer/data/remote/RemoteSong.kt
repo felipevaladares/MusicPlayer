@@ -84,7 +84,7 @@ data class RemoteSong(
     val trackNumber: Int,
 
     @field:Json(name = "trackTimeMillis")
-    val trackTimeMillis: Int,
+    val trackTimeMillis: Long,
 
     @field:Json(name = "country")
     val country: String,
