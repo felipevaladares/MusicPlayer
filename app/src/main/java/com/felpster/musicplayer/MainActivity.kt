@@ -15,12 +15,15 @@ import androidx.navigation.compose.rememberNavController
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.presentation.home.HomeScreen
 import com.felpster.musicplayer.presentation.home.HomeViewModel
+import com.felpster.musicplayer.presentation.player.PlayerScreen
+import com.felpster.musicplayer.presentation.player.PlayerViewModel
 import com.felpster.musicplayer.presentation.splash.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 sealed class Destination(val route: String) {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
+    object Player: Destination("player_screen")
 }
 
 @AndroidEntryPoint
@@ -55,6 +58,13 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             val viewModel = hiltViewModel<HomeViewModel>()
             HomeScreen(
                 viewState = viewModel.homeViewState,
+            )
+        }
+
+        composable(Destination.Player.route) {
+            val viewModel = hiltViewModel<PlayerViewModel>()
+            PlayerScreen(
+                viewState = viewModel.playerViewState,
             )
         }
     }
