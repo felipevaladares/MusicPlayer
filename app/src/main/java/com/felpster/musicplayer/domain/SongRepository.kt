@@ -1,9 +1,10 @@
 package com.felpster.musicplayer.domain
 
 import com.felpster.musicplayer.domain.model.Song
+import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {
-    suspend fun searchSongs(search: String): List<Song>
+    fun searchSongs(search: String): Flow<List<Song>>
 
-    suspend fun getAlbumSongs(albumId: Long): List<Song>
+    fun getAlbumSongs(albumId: Long): Flow<List<Song>>
 }
