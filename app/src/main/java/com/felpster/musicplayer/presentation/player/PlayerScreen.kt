@@ -161,7 +161,7 @@ fun PlayerView(
 @Composable
 private fun PlayerSlider(song: Song) {
     var sliderPosition by remember { mutableFloatStateOf(0.33f) }
-    val currentPosition = (song.duration * sliderPosition).toInt()
+    val currentPosition = (song.durationMillis * sliderPosition).toLong() / 1000 // Convert to seconds
     Column(modifier = Modifier.fillMaxWidth()) {
         Slider(
             value = sliderPosition,
@@ -179,7 +179,7 @@ private fun PlayerSlider(song: Song) {
         ) {
             Text(text = formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
             Text(
-                text = "-" + formatTime(song.duration),
+                text = "-" + formatTime(song.durationMillis),
                 color = Color.Gray,
                 fontSize = 12.sp
             )
@@ -242,7 +242,7 @@ private fun PlayerControls() {
     }
 }
 
-private fun formatTime(seconds: Int): String {
+private fun formatTime(seconds: Long): String {
     val min = seconds / 60
     val sec = seconds % 60
     return "%d:%02d".format(min, sec)

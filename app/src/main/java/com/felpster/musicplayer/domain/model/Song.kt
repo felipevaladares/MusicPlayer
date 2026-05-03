@@ -1,10 +1,10 @@
 package com.felpster.musicplayer.domain.model
 
 data class Song(
-    val id: String,
+    val id: Long,
     val title: String,
     val artist: String,
-    val albumId: String,
+    val albumId: Long,
     val albumArtUrl: String,
-    val duration: Int = 0,
+    val durationMillis: Long = 0,
 )

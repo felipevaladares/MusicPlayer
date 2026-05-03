@@ -32,11 +32,11 @@ sealed class Destination(val route: String)  {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
     object Player: Destination("player_screen/{songId}") {
-        fun createRoute(songId: String) = "player_screen/$songId"
+        fun createRoute(songId: Long) = "player_screen/$songId"
     }
 
     object Album: Destination("album_screen/{albumId}") {
-        fun createRoute(albumId: String) = "album_screen/$albumId"
+        fun createRoute(albumId: Long) = "album_screen/$albumId"
     }
 }
 
@@ -97,7 +97,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
         composable(
             route = Destination.Player.route,
-            arguments = listOf(navArgument("songId") { type = NavType.StringType })
+            arguments = listOf(navArgument("songId") { type = NavType.LongType })
         ){
             val viewModel = hiltViewModel<PlayerViewModel>()
             PlayerScreen(
@@ -108,7 +108,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
         composable(
             route = Destination.Album.route,
-            arguments = listOf(navArgument("albumId") { type = NavType.StringType })
+            arguments = listOf(navArgument("albumId") { type = NavType.LongType })
         ){
             val viewModel = hiltViewModel<AlbumViewModel>()
             AlbumScreen (
