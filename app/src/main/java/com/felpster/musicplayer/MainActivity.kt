@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.presentation.home.HomeScreen
+import com.felpster.musicplayer.presentation.home.HomeViewState
 import com.felpster.musicplayer.presentation.splash.SplashScreen
 
 sealed class Destination(val route: String) {
@@ -48,7 +49,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         }
 
         composable(Destination.Home.route) {
-            HomeScreen()
+            HomeScreen(HomeViewState.Success("Welcome to the Music Player!"))
         }
     }
 }
