@@ -72,11 +72,13 @@ fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         // Search Bar
         SearchBar(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
             query = searchQuery.value,
             onQueryChange = { searchQuery.value = it },
         )
@@ -85,7 +87,6 @@ fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             items(filteredSongs) { song ->
                 SongItem(
