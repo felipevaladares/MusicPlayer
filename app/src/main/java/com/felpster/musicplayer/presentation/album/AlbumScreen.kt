@@ -36,9 +36,9 @@ import com.felpster.core_ui.components.AppBar
 import com.felpster.core_ui.components.ErrorView
 import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
 import com.felpster.musicplayer.presentation.components.SongItem
-import com.felpster.musicplayer.presentation.home.mockSongs
 
 sealed class AlbumViewState {
     data class Success(

@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +20,7 @@ import com.felpster.core_ui.components.AppBar
 import com.felpster.core_ui.components.ErrorView
 import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
 import com.felpster.musicplayer.presentation.components.MoreOptionsSheet
 import com.felpster.musicplayer.presentation.components.SearchBar
@@ -101,17 +104,26 @@ fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier
             },
         )
 
-        // Song List
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            items(songs) { song ->
-                SongItem(
-                    song = song,
-                    onItemClick = { onEvent(HomeEvent.SongSelected(song)) },
-                    onMenuClick = { onEvent(HomeEvent.MenuOptionSelected(song)) }
-                )
+        // Song List or Empty State
+        if (songs.isEmpty()) {
+            Text(
+                text = "No songs found, try searching for a different artist or song",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                items(songs) { song ->
+                    SongItem(
+                        song = song,
+                        onItemClick = { onEvent(HomeEvent.SongSelected(song)) },
+                        onMenuClick = { onEvent(HomeEvent.MenuOptionSelected(song)) }
+                    )
+                }
             }
         }
     }
@@ -123,6 +135,17 @@ fun HomeScreenPreview() {
     MusicPlayerTheme {
         HomeScreen(
             viewState = HomeViewState.Success(mockSongs),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeScreenEmptyPreview() {
+    MusicPlayerTheme {
+        HomeScreen(
+            viewState = HomeViewState.Success(emptyList()),
             onEvent = {}
         )
     }

@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.R
+import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
-import com.felpster.musicplayer.presentation.home.mockSongs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

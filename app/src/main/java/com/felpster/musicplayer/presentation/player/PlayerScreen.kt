@@ -47,8 +47,8 @@ import com.felpster.core_ui.components.AppBar
 import com.felpster.core_ui.components.ErrorView
 import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
-import com.felpster.musicplayer.presentation.home.mockSongs
 
 sealed class PlayerViewState {
     data class Success(val song: Song) : PlayerViewState()
@@ -179,7 +179,7 @@ private fun PlayerSlider(song: Song) {
         ) {
             Text(text = formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
             Text(
-                text = "-" + formatTime(song.durationMillis),
+                text = "-" + formatTime(song.durationMillis / 1000 - currentPosition),
                 color = Color.Gray,
                 fontSize = 12.sp
             )
