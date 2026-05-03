@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":core-ui"))
 
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.compose)
