@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ fun LoadingView(
         message?.let {
             Text(
                 modifier = Modifier.padding(top = 32.dp),
+                color = Color.White,
                 style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
                 text = it,
             )
@@ -45,7 +47,7 @@ fun LoadingView(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun LoadingViewPreview() {
     MusicPlayerTheme {
