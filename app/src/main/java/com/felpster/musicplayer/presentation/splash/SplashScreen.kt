@@ -21,7 +21,7 @@ fun SplashScreen(
     onComplete: () -> Unit
 ) {
     LaunchedEffect(true) {
-        delay(5000) // Simulate loading time (5 seconds)
+        delay(2000) // Simulate loading time (2 seconds)
         onComplete() // Notify that the splash screen is complete
     }
 
