@@ -1,28 +1,55 @@
 package com.felpster.musicplayer.presentation.album
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.felpster.musicplayer.presentation.home.mockSongs
+import androidx.lifecycle.viewModelScope
+import com.felpster.musicplayer.commons.Result
+import com.felpster.musicplayer.commons.asResult
+import com.felpster.musicplayer.domain.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val repository: SongRepository,
 ): ViewModel() {
-    var albumId: String =
+    var albumId: Long =
         savedStateHandle["albumId"] ?: throw IllegalArgumentException("Album ID is required")
 
-    var albumViewState by mutableStateOf<AlbumViewState>(
-        AlbumViewState.Success(
-            albumName = "Album name",
-            artistName = "Artist name",
-            albumArtUrl = "https://via.placeholder.com/150",
-            songs = mockSongs,
-        )
-    )
-        private set
+//    var albumViewState by mutableStateOf<AlbumViewState>(AlbumViewState.Loading("Retrieving album songs..."))
+//        private set
+
+    val state: StateFlow<AlbumViewState> by lazy {
+        repository
+            .getAlbumSongs(albumId)
+            .asResult()
+            .map { result ->
+                when (result) {
+                    is Result.Error -> {
+                        result.exception?.printStackTrace()
+                        AlbumViewState.Error(result.exception?.message ?: "An error occurred while retrieving album songs")
+                    }
+                    is Result.Loading -> AlbumViewState.Loading("Retrieving album songs...")
+                    is Result.Success -> {
+                        AlbumViewState.Success(
+                            albumName = result.data.name,
+                            artistName = result.data.artistName,
+                            albumArtUrl = result.data.artUrl,
+                            songs = result.data.songs
+                        )
+                    }
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                initialValue = AlbumViewState.Loading("Retrieving album songs..."),
+                started = SharingStarted.WhileSubscribed(5_000),
+            )
+    }
+
+
 }

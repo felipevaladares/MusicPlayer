@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -110,9 +112,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             route = Destination.Album.route,
             arguments = listOf(navArgument("albumId") { type = NavType.LongType })
         ){
-            val viewModel = hiltViewModel<AlbumViewModel>()
+            val uiState by hiltViewModel<AlbumViewModel>().state.collectAsStateWithLifecycle()
             AlbumScreen (
-                viewState = viewModel.albumViewState,
+                viewState = uiState,
                 onBack = { navController.popBackStack() }
             )
         }
