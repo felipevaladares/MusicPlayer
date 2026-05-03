@@ -52,7 +52,7 @@ class AlbumResponseAdapter {
         }
         reader.endObject()
 
-        return AlbumResponse(resultCount, songs, album)
+        return AlbumResponse(resultCount, songs, album!!)
     }
 
 
@@ -132,7 +132,7 @@ class AlbumResponseAdapter {
 
     private fun parseSongFromJson(reader: JsonReader): RemoteSong {
         var wrapperType = ""
-        var kind: String? = null
+        var kind = ""
         var artistId = 0L
         var collectionId = 0L
         var trackId = 0L

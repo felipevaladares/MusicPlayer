@@ -30,11 +30,11 @@ class SongRepositoryImpl @Inject constructor(
         flow {
             val response = api.getAlbumSongs(albumId)
             val album = Album(
-                id = response.album?.collectionId ?: 0L,
-                name = response.album?.collectionName ?: "Unknown Album",
-                artUrl = response.album?.artworkUrl100 ?: "",
-                artistId = response.album?.artistId ?: 0L,
-                artistName = response.album?.artistName ?: "Unknown Artist",
+                id = response.album.collectionId,
+                name = response.album.collectionName,
+                artUrl = response.album.artworkUrl100,
+                artistId = response.album.artistId,
+                artistName = response.album.artistName,
                 songs = response.results.map { result ->
                     Song(
                         id = result.trackId,
