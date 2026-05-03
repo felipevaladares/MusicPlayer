@@ -15,12 +15,14 @@ import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.presentation.home.HomeScreen
 import com.felpster.musicplayer.presentation.home.HomeViewState
 import com.felpster.musicplayer.presentation.splash.SplashScreen
+import dagger.hilt.android.AndroidEntryPoint
 
 sealed class Destination(val route: String) {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
 }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
