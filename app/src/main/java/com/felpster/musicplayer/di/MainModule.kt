@@ -1,6 +1,7 @@
 package com.felpster.musicplayer.di
 
 import com.felpster.musicplayer.data.SongRepositoryImpl
+import com.felpster.musicplayer.data.remote.AlbumResponseAdapter
 import com.felpster.musicplayer.data.remote.ItunesApi
 import com.felpster.musicplayer.domain.SongRepository
 import com.squareup.moshi.Moshi
@@ -26,6 +27,7 @@ abstract class MainModule {
         fun provideUserApi(): ItunesApi {
             val moshi =
                 Moshi.Builder()
+                    .add(AlbumResponseAdapter())
                     .add(KotlinJsonAdapterFactory())
                     .build()
 
