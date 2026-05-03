@@ -1,5 +1,6 @@
 package com.felpster.musicplayer.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,9 +29,17 @@ import com.felpster.musicplayer.domain.model.Song
 fun SongItem(
     song: Song,
     modifier: Modifier = Modifier,
+    onItemClick: (() -> Unit)? = null,
     onMenuClick: (() -> Unit)? = null,
 ) {
-    ListItem(modifier = modifier) {
+    ListItem(modifier = modifier
+        .clickable(
+            enabled = onItemClick != null,
+            role = Role.Button,
+            onClickLabel = "Play ${song.title}",
+            onClick = { onItemClick?.invoke() }
+        ),
+    ) {
         // Album Art
         AsyncImage(
             model = song.albumArtUrl,
