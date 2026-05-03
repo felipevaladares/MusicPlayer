@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(navController: NavHostController = rememberNavController()) {
     NavHost(navController = navController, startDestination = Destination.Splash.route) {
         composable(Destination.Splash.route) {
-            SplashScreen{
+            SplashScreen {
                 navController.navigate(Destination.Home.route) {
                     popUpTo(Destination.Splash.route) {
                         inclusive = true

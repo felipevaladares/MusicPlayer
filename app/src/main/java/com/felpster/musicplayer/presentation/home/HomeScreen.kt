@@ -1,34 +1,48 @@
 package com.felpster.musicplayer.presentation.home
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.felpster.core_ui.components.AppBar
 import com.felpster.core_ui.components.ErrorView
 import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.domain.model.Song
+import com.felpster.musicplayer.presentation.components.SearchBar
+import com.felpster.musicplayer.presentation.components.SongItem
 
 sealed class HomeViewState {
-    data class Success(val data: String) : HomeViewState()
+    data class Success(val songs: List<Song>) : HomeViewState()
     data class Error(val message: String) : HomeViewState()
     data class Loading(val message: String) : HomeViewState()
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewState: HomeViewState,
 ) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        when(viewState) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = { AppBar(title = "Songs") },
+    ) { innerPadding ->
+        when (viewState) {
             is HomeViewState.Success -> {
                 HomeView(
-                    data = viewState.data,
-                    modifier = Modifier.padding(innerPadding))
+                    songs = viewState.songs,
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
 
             is HomeViewState.Error -> {
@@ -49,42 +63,66 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeView(data: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
+    val searchQuery = remember { mutableStateOf("") }
+
+    val filteredSongs = songs.filter { song ->
+        song.title.contains(searchQuery.value, ignoreCase = true) ||
+        song.artist.contains(searchQuery.value, ignoreCase = true)
+    }
+
+    Column(
+        modifier = modifier.fillMaxSize()
     ) {
-        Text(text = data)
+        // Search Bar
+        SearchBar(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            query = searchQuery.value,
+            onQueryChange = { searchQuery.value = it },
+        )
+
+        // Song List
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(filteredSongs) { song ->
+                SongItem(
+                    song = song,
+                    onMenuClick = { /* TODO: Handle menu click */ }
+                )
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun HomeScreenPreview() {
     MusicPlayerTheme {
         HomeScreen(
-            HomeViewState.Success("Music loaded successfully!"),
+            viewState = HomeViewState.Success(mockSongs),
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun UsersScreenLoadingPreview() {
+fun HomeScreenLoadingPreview() {
     MusicPlayerTheme {
         HomeScreen(
-            HomeViewState.Loading("Fetching music..."),
+            viewState = HomeViewState.Loading("Fetching music..."),
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun UsersScreenErrorPreview() {
+fun HomeScreenErrorPreview() {
     MusicPlayerTheme {
         HomeScreen(
-            HomeViewState.Error("Failed to load music. Please try again."),
+            viewState = HomeViewState.Error("Failed to load music. Please try again."),
         )
     }
 }
