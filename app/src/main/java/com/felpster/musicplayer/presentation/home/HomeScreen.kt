@@ -28,10 +28,17 @@ sealed class HomeViewState {
     data class Loading(val message: String) : HomeViewState()
 }
 
+sealed interface HomeEvent {
+    data class SongSelected(val song: Song) : HomeEvent
+    data class SearchQueryChanged(val query: String) : HomeEvent
+    data class MenuOptionSelected(val song: Song) : HomeEvent
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewState: HomeViewState,
+    onEvent: (HomeEvent) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -41,6 +48,7 @@ fun HomeScreen(
             is HomeViewState.Success -> {
                 HomeView(
                     songs = viewState.songs,
+                    onEvent = onEvent,
                     modifier = Modifier.padding(innerPadding),
                 )
             }
@@ -63,13 +71,8 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
+fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier = Modifier) {
     val searchQuery = remember { mutableStateOf("") }
-
-    val filteredSongs = songs.filter { song ->
-        song.title.contains(searchQuery.value, ignoreCase = true) ||
-        song.artist.contains(searchQuery.value, ignoreCase = true)
-    }
 
     Column(
         modifier = modifier
@@ -80,7 +83,10 @@ fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
         SearchBar(
             modifier = Modifier.fillMaxWidth(),
             query = searchQuery.value,
-            onQueryChange = { searchQuery.value = it },
+            onQueryChange = {
+                searchQuery.value = it
+                onEvent(HomeEvent.SearchQueryChanged(it))
+            },
         )
 
         // Song List
@@ -88,10 +94,11 @@ fun HomeView(songs: List<Song>, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            items(filteredSongs) { song ->
+            items(songs) { song ->
                 SongItem(
                     song = song,
-                    onMenuClick = { /* TODO: Handle menu click */ }
+                    onItemClick = { onEvent(HomeEvent.SongSelected(song)) },
+                    onMenuClick = { onEvent(HomeEvent.MenuOptionSelected(song)) }
                 )
             }
         }
@@ -104,6 +111,7 @@ fun HomeScreenPreview() {
     MusicPlayerTheme {
         HomeScreen(
             viewState = HomeViewState.Success(mockSongs),
+            onEvent = {}
         )
     }
 }
@@ -114,6 +122,7 @@ fun HomeScreenLoadingPreview() {
     MusicPlayerTheme {
         HomeScreen(
             viewState = HomeViewState.Loading("Fetching music..."),
+            onEvent = {}
         )
     }
 }
@@ -124,6 +133,7 @@ fun HomeScreenErrorPreview() {
     MusicPlayerTheme {
         HomeScreen(
             viewState = HomeViewState.Error("Failed to load music. Please try again."),
+            onEvent = {}
         )
     }
 }

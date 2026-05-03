@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.felpster.musicplayer.domain.model.Song
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 val mockSongs = listOf(
@@ -46,10 +48,45 @@ val mockSongs = listOf(
     )
 )
 
+sealed interface HomeNavEvent {
+     data class NavigateToPlayer(val song: Song) : HomeNavEvent
+}
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
 
 ): ViewModel() {
-    var homeViewState by mutableStateOf(HomeViewState.Success(mockSongs))
+
+    private val navigationEventsChannel = Channel<HomeNavEvent>(Channel.UNLIMITED)
+    val navigationEvents = navigationEventsChannel.receiveAsFlow()
+
+    var homeViewState by mutableStateOf<HomeViewState>(HomeViewState.Success(mockSongs))
         private set
+
+    fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.SearchQueryChanged -> {
+                val query = event.query.trim().lowercase()
+                homeViewState = if (query.isEmpty()) {
+                    HomeViewState.Success(mockSongs)
+                } else {
+                    val filteredSongs = mockSongs.filter { song ->
+                        song.title.lowercase().contains(query) ||
+                        song.artist.lowercase().contains(query)
+                    }
+
+                    HomeViewState.Success(filteredSongs)
+                }
+            }
+
+            is HomeEvent.SongSelected -> {
+                // Handle song selection, e.g. navigate to player screen
+                navigationEventsChannel.trySend(HomeNavEvent.NavigateToPlayer(event.song))
+            }
+
+            is HomeEvent.MenuOptionSelected -> {
+                // Handle menu option selection, e.g. show context menu
+            }
+        }
+    }
 }

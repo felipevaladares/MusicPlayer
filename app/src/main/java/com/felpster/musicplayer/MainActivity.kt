@@ -5,25 +5,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.presentation.home.HomeNavEvent
 import com.felpster.musicplayer.presentation.home.HomeScreen
 import com.felpster.musicplayer.presentation.home.HomeViewModel
 import com.felpster.musicplayer.presentation.player.PlayerScreen
 import com.felpster.musicplayer.presentation.player.PlayerViewModel
 import com.felpster.musicplayer.presentation.splash.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
-sealed class Destination(val route: String) {
+
+sealed class Destination(val route: String)  {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
-    object Player: Destination("player_screen")
+    object Player: Destination("player_screen/{songId}")
 }
 
 @AndroidEntryPoint
@@ -56,12 +62,29 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
 
         composable(Destination.Home.route) {
             val viewModel = hiltViewModel<HomeViewModel>()
+
+            // Listen to navigation events and navigate to the player screen
+            LaunchedEffect(Unit) {
+                viewModel.navigationEvents.collectLatest { destination ->
+                    when (destination) {
+                        is HomeNavEvent.NavigateToPlayer -> {
+                            navController.navigate("player_screen/${destination.song.id}")
+                        }
+                        else -> {} // Handle other destinations if needed
+                    }
+                }
+            }
+
             HomeScreen(
                 viewState = viewModel.homeViewState,
+                onEvent = viewModel::onEvent,
             )
         }
 
-        composable(Destination.Player.route) {
+        composable(
+            route = Destination.Player.route,
+            arguments = listOf(navArgument("songId") { type = NavType.StringType })
+        ){
             val viewModel = hiltViewModel<PlayerViewModel>()
             PlayerScreen(
                 viewState = viewModel.playerViewState,
