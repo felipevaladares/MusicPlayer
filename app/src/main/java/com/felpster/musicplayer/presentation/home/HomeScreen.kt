@@ -19,11 +19,12 @@ import com.felpster.core_ui.components.ErrorView
 import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.domain.model.Song
+import com.felpster.musicplayer.presentation.components.MoreOptionsSheet
 import com.felpster.musicplayer.presentation.components.SearchBar
 import com.felpster.musicplayer.presentation.components.SongItem
 
 sealed class HomeViewState {
-    data class Success(val songs: List<Song>) : HomeViewState()
+    data class Success(val songs: List<Song>, val actionSheetSong: Song? = null) : HomeViewState()
     data class Error(val message: String) : HomeViewState()
     data class Loading(val message: String) : HomeViewState()
 }
@@ -32,6 +33,8 @@ sealed interface HomeEvent {
     data class SongSelected(val song: Song) : HomeEvent
     data class SearchQueryChanged(val query: String) : HomeEvent
     data class MenuOptionSelected(val song: Song) : HomeEvent
+    data class AlbumOptionSelected(val song: Song) : HomeEvent
+    data object MenuOptionDismissed : HomeEvent
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +54,14 @@ fun HomeScreen(
                     onEvent = onEvent,
                     modifier = Modifier.padding(innerPadding),
                 )
+
+                viewState.actionSheetSong?.let { song ->
+                    MoreOptionsSheet(
+                        song = song,
+                        onDismissRequest = { onEvent(HomeEvent.MenuOptionDismissed) },
+                        onViewAlbum = { onEvent(HomeEvent.AlbumOptionSelected(song)) }
+                    )
+                }
             }
 
             is HomeViewState.Error -> {
@@ -68,6 +79,7 @@ fun HomeScreen(
             }
         }
     }
+
 }
 
 @Composable
