@@ -7,13 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.presentation.home.HomeScreen
-import com.felpster.musicplayer.presentation.home.HomeViewState
+import com.felpster.musicplayer.presentation.home.HomeViewModel
 import com.felpster.musicplayer.presentation.splash.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -51,7 +52,10 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         }
 
         composable(Destination.Home.route) {
-            HomeScreen(HomeViewState.Success("Welcome to the Music Player!"))
+            val viewModel = hiltViewModel<HomeViewModel>()
+            HomeScreen(
+                viewState = viewModel.homeViewState,
+            )
         }
     }
 }
