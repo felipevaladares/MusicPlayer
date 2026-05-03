@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.PlayArrow
@@ -59,10 +60,24 @@ sealed class PlayerViewState {
 @Composable
 fun PlayerScreen(
     viewState: PlayerViewState,
+    onBack: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(title = "Now Playing") },
+        topBar = {
+            AppBar(
+                title = "Now Playing",
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            tint = Color.White,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        },
     ) { innerPadding ->
         when (viewState) {
             is PlayerViewState.Success -> {
@@ -227,7 +242,6 @@ private fun PlayerControls() {
     }
 }
 
-
 private fun formatTime(seconds: Int): String {
     val min = seconds / 60
     val sec = seconds % 60
@@ -239,7 +253,8 @@ private fun formatTime(seconds: Int): String {
 fun PlayerViewPreview() {
     MusicPlayerTheme {
         PlayerScreen(
-            viewState = PlayerViewState.Success(song = mockSongs.first())
+            viewState = PlayerViewState.Success(song = mockSongs.first()),
+            onBack = {}
         )
     }
 }

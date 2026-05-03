@@ -16,6 +16,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.felpster.core_ui.theme.MusicPlayerTheme
+import com.felpster.musicplayer.presentation.album.AlbumScreen
+import com.felpster.musicplayer.presentation.album.AlbumViewModel
 import com.felpster.musicplayer.presentation.home.HomeNavEvent
 import com.felpster.musicplayer.presentation.home.HomeScreen
 import com.felpster.musicplayer.presentation.home.HomeViewModel
@@ -30,6 +32,8 @@ sealed class Destination(val route: String)  {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
     object Player: Destination("player_screen/{songId}")
+
+    object Album: Destination("album_screen/{albumId}")
 }
 
 @AndroidEntryPoint
@@ -68,9 +72,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 viewModel.navigationEvents.collectLatest { destination ->
                     when (destination) {
                         is HomeNavEvent.NavigateToPlayer -> {
-                            navController.navigate("player_screen/${destination.song.id}")
+                            navController.navigate("player_screen/${destination.songId}")
                         }
-                        else -> {} // Handle other destinations if needed
+
+                        is HomeNavEvent.NavigateToAlbum -> {
+                            navController.navigate("album_screen/${destination.albumId}")
+                        }
                     }
                 }
             }
@@ -88,8 +95,22 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             val viewModel = hiltViewModel<PlayerViewModel>()
             PlayerScreen(
                 viewState = viewModel.playerViewState,
+                onBack = { navController.popBackStack() }
             )
         }
+
+        composable(
+            route = Destination.Album.route,
+            arguments = listOf(navArgument("albumId") { type = NavType.StringType })
+        ){
+            val viewModel = hiltViewModel<AlbumViewModel>()
+            AlbumScreen (
+                viewState = viewModel.albumViewState,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
     }
 }
 

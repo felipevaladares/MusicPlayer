@@ -49,7 +49,8 @@ val mockSongs = listOf(
 )
 
 sealed interface HomeNavEvent {
-     data class NavigateToPlayer(val song: Song) : HomeNavEvent
+    data class NavigateToPlayer(val songId: String) : HomeNavEvent
+    data class NavigateToAlbum(val albumId: String) : HomeNavEvent
 }
 
 @HiltViewModel
@@ -81,11 +82,13 @@ class HomeViewModel @Inject constructor(
 
             is HomeEvent.SongSelected -> {
                 // Handle song selection, e.g. navigate to player screen
-                navigationEventsChannel.trySend(HomeNavEvent.NavigateToPlayer(event.song))
+                navigationEventsChannel.trySend(HomeNavEvent.NavigateToPlayer(event.song.id))
             }
 
             is HomeEvent.MenuOptionSelected -> {
                 // Handle menu option selection, e.g. show context menu
+                //TODO launch action sheet instead
+                navigationEventsChannel.trySend(HomeNavEvent.NavigateToAlbum(event.song.id))
             }
         }
     }
