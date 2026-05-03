@@ -31,9 +31,13 @@ import kotlinx.coroutines.flow.collectLatest
 sealed class Destination(val route: String)  {
     object Home: Destination("home_screen")
     object Splash: Destination("splash_screen")
-    object Player: Destination("player_screen/{songId}")
+    object Player: Destination("player_screen/{songId}") {
+        fun createRoute(songId: String) = "player_screen/$songId"
+    }
 
-    object Album: Destination("album_screen/{albumId}")
+    object Album: Destination("album_screen/{albumId}") {
+        fun createRoute(albumId: String) = "album_screen/$albumId"
+    }
 }
 
 @AndroidEntryPoint
@@ -67,16 +71,19 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         composable(Destination.Home.route) {
             val viewModel = hiltViewModel<HomeViewModel>()
 
-            // Listen to navigation events and navigate to the player screen
             LaunchedEffect(Unit) {
-                viewModel.navigationEvents.collectLatest { destination ->
-                    when (destination) {
+                viewModel.navigationEvents.collectLatest { navEvent ->
+                    when (navEvent) {
                         is HomeNavEvent.NavigateToPlayer -> {
-                            navController.navigate("player_screen/${destination.songId}")
+                            navController.navigate(
+                                route = Destination.Player.createRoute(navEvent.songId)
+                            )
                         }
 
                         is HomeNavEvent.NavigateToAlbum -> {
-                            navController.navigate("album_screen/${destination.albumId}")
+                            navController.navigate(
+                                route = Destination.Album.createRoute(navEvent.albumId)
+                            )
                         }
                     }
                 }
