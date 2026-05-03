@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.R
 import com.felpster.musicplayer.domain.model.Song
+import com.felpster.musicplayer.presentation.home.mockSongs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,13 +101,7 @@ private fun Content(
 fun MoreOptionsSheetPreview() {
     MusicPlayerTheme {
         Content(
-            song = Song(
-                id = "1",
-                title = "Song name",
-                artist = "Artist name",
-                albumId = "1",
-                albumArtUrl = ""
-            ),
+            song = mockSongs.first(),
             onDismissRequest = {},
             onViewAlbum = {}
         )
