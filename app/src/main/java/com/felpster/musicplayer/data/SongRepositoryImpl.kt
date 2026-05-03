@@ -10,6 +10,7 @@ import javax.inject.Inject
 class SongRepositoryImpl @Inject constructor(
     private val api: ItunesApi
 ): SongRepository {
+
     override fun searchSongs(search: String) =
         flow {
             emit(
@@ -26,7 +27,7 @@ class SongRepositoryImpl @Inject constructor(
             )
         }
 
-    override fun getAlbumSongs(albumId: Long) =
+    override fun getAlbumWithSongs(albumId: Long) =
         flow {
             val response = api.getAlbumSongs(albumId)
             val album = Album(
@@ -47,5 +48,21 @@ class SongRepositoryImpl @Inject constructor(
                 }
             )
             emit(album)
+        }
+
+    override fun getSong(id: Long) =
+        flow {
+            val result = api.getSong(id).results.firstOrNull()
+                ?: throw IllegalArgumentException("Song with ID $id not found")
+            emit(
+                Song(
+                    id = result.trackId,
+                    title = result.trackName,
+                    artist = result.artistName,
+                    albumId = result.collectionId,
+                    albumArtUrl = result.artworkUrl100,
+                    durationMillis = result.trackTimeMillis
+                )
+            )
         }
 }

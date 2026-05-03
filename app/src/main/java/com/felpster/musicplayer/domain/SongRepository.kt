@@ -7,5 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface SongRepository {
     fun searchSongs(search: String): Flow<List<Song>>
 
-    fun getAlbumSongs(albumId: Long): Flow<Album>
+    fun getAlbumWithSongs(albumId: Long): Flow<Album>
+
+    fun getSong(id: Long): Flow<Song>
 }

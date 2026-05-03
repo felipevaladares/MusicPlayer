@@ -21,12 +21,9 @@ class AlbumViewModel @Inject constructor(
     var albumId: Long =
         savedStateHandle["albumId"] ?: throw IllegalArgumentException("Album ID is required")
 
-//    var albumViewState by mutableStateOf<AlbumViewState>(AlbumViewState.Loading("Retrieving album songs..."))
-//        private set
-
     val state: StateFlow<AlbumViewState> by lazy {
         repository
-            .getAlbumSongs(albumId)
+            .getAlbumWithSongs(albumId)
             .asResult()
             .map { result ->
                 when (result) {
@@ -50,6 +47,4 @@ class AlbumViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
             )
     }
-
-
 }

@@ -16,4 +16,10 @@ interface ItunesApi {
         @Query(value="id") albumId: Long,
         @Query(value = "entity") entity: String = "song",
     ): AlbumResponse
+
+    @GET("lookup")
+    suspend fun getSong(
+        @Query(value="id") songId: Long,
+        @Query(value = "entity") entity: String = "song",
+    ): SongResponse
 }
