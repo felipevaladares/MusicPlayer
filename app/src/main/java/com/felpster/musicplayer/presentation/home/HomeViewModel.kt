@@ -4,13 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.felpster.musicplayer.domain.SongRepository
 import com.felpster.musicplayer.domain.model.Song
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToAlbum
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToPlayer
 import com.felpster.musicplayer.presentation.home.HomeViewState.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 val mockSongs = listOf(
@@ -63,7 +68,7 @@ sealed interface HomeNavEvent {
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-
+    private val repository: SongRepository,
 ): ViewModel() {
 
     private val navigationEventsChannel = Channel<HomeNavEvent>(Channel.UNLIMITED)
@@ -76,15 +81,11 @@ class HomeViewModel @Inject constructor(
         when (event) {
             is HomeEvent.SearchQueryChanged -> {
                 val query = event.query.trim().lowercase()
-                homeViewState = if (query.isEmpty()) {
-                    Success(mockSongs)
-                } else {
-                    val filteredSongs = mockSongs.filter { song ->
-                        song.title.lowercase().contains(query) ||
-                        song.artist.lowercase().contains(query)
-                    }
 
-                    Success(filteredSongs)
+                if (query.isEmpty()) {
+                    homeViewState = Success(mockSongs)
+                } else {
+                    searchSongs(query)
                 }
             }
 
@@ -109,6 +110,18 @@ class HomeViewModel @Inject constructor(
                     else -> currentState
                 }
             }
+        }
+    }
+
+    private fun searchSongs(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.searchSongs(query)
+                .catch {
+                    it.printStackTrace()
+                }
+                .collect { songs ->
+                    homeViewState = Success(songs)
+                }
         }
     }
 }
