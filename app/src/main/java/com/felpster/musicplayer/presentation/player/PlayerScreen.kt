@@ -27,8 +27,10 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +51,7 @@ import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
+import kotlinx.coroutines.delay
 
 sealed class PlayerViewState {
     data class Success(val song: Song) : PlayerViewState()
@@ -160,12 +163,34 @@ fun PlayerView(
 
 @Composable
 private fun PlayerSlider(song: Song) {
-    var sliderPosition by remember { mutableFloatStateOf(0.33f) }
-    val currentPosition = (song.durationMillis * sliderPosition).toLong() / 1000 // Convert to seconds
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    var elapsedTimeMillis by remember { mutableLongStateOf(0L) }
+    var isPlaying by remember { mutableFloatStateOf(1f) } // 1f = playing, 0f = paused
+
+    // Animate the slider
+    LaunchedEffect(isPlaying) {
+        while (isPlaying > 0.5f) {
+            delay(200) // Update every 200ms
+            val totalDurationMillis = song.durationMillis
+            elapsedTimeMillis += 200
+            
+            // Stop when song ends
+            if (elapsedTimeMillis >= totalDurationMillis) {
+                elapsedTimeMillis = 0L
+            }
+            
+            sliderPosition = elapsedTimeMillis.toFloat() / totalDurationMillis.toFloat()
+        }
+    }
+
+    val currentPosition = elapsedTimeMillis / 1000 // Convert to seconds
     Column(modifier = Modifier.fillMaxWidth()) {
         Slider(
             value = sliderPosition,
-            onValueChange = { sliderPosition = it },
+            onValueChange = { 
+                sliderPosition = it
+                elapsedTimeMillis = (song.durationMillis * it).toLong()
+            },
             modifier = Modifier.fillMaxWidth(),
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
