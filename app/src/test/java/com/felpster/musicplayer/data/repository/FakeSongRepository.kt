@@ -5,11 +5,13 @@ import com.felpster.musicplayer.domain.model.Album
 import com.felpster.musicplayer.domain.model.Song
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 
 class FakeSongRepository : SongRepository {
 
     private val songsFlow = MutableSharedFlow<List<Song>>()
+    private val albumFlow = MutableSharedFlow<Album>()
+    private val songFlow = MutableSharedFlow<Song>()
 
     private var error: Throwable? = null
 
@@ -21,31 +23,12 @@ class FakeSongRepository : SongRepository {
         songsFlow.emit(songs)
     }
 
-    override fun searchSongs(search: String): Flow<List<Song>> = songsFlow
-
-    override fun getAlbumWithSongs(albumId: Long): Flow<Album> {
-        return flowOf(
-            Album(
-                id = albumId,
-                name = "Fake Album",
-                artUrl = "",
-                artistId = 1L,
-                artistName = "Fake Artist",
-                songs = emptyList()
-            )
-        )
+    suspend fun emitAlbum(album: Album) {
+        albumFlow.emit(album)
     }
 
-    override fun getSong(id: Long): Flow<Song> {
-        return flowOf(
-            Song(
-                id = id,
-                title = "Fake Song",
-                artist = "Fake Artist",
-                albumId = 1L,
-                albumArtUrl = ""
-            )
-        )
+    suspend fun emitSong(song: Song) {
+        songFlow.emit(song)
     }
 
     override fun searchSongs(search: String): Flow<List<Song>> = flow {
@@ -55,16 +38,27 @@ class FakeSongRepository : SongRepository {
 
     override fun getAlbumWithSongs(albumId: Long): Flow<Album> = flow {
         error?.let { throw it }
+        albumFlow.collect { emit(it) }
     }
 
     override fun getSong(id: Long): Flow<Song> = flow {
         error?.let { throw it }
+        songFlow.collect { emit(it) }
     }
 
     companion object {
         val songsList = listOf(
             Song(1L, "Song 1", "Artist 1", 10L, "url1"),
             Song(2L, "Song 2", "Artist 2", 20L, "url2")
+        )
+
+        val album = Album(
+            id = 10L,
+            name = "Album 1",
+            artUrl = "url1",
+            artistId = 1L,
+            artistName = "Artist 1",
+            songs = songsList
         )
     }
 }
