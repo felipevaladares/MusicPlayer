@@ -117,7 +117,8 @@ fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier
         // Song List or Empty State
         if (songs.isEmpty()) {
             Text(
-                text = "No songs found, try searching for a different artist or song",
+                text = "No songs found, try searching for a different artist or song." +
+                        "\nNext time you play a song it will appear here when you open the app.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
