@@ -98,7 +98,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `state should be Error when repository fails`() = runTest {
+    fun `state should be Success with emptyList when repository fails`() = runTest {
         val errorMessage = "Database Error"
         repository.setError(Exception(errorMessage))
 

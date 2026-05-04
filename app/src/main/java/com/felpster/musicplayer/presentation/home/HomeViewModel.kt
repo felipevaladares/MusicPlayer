@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felpster.musicplayer.commons.Result
+import com.felpster.musicplayer.commons.asResult
 import com.felpster.musicplayer.domain.SongRepository
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToAlbum
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToPlayer
@@ -12,8 +14,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -72,13 +75,13 @@ class HomeViewModel @Inject constructor(
 
     private fun searchSongs(query: String) {
         viewModelScope.launch(ioDispatcher) {
-            repository.searchSongs(query)
-                .catch {
-                    it.printStackTrace()
+            repository.searchSongs(query).asResult().map {
+                homeViewState = when (it) {
+                    is Result.Success -> HomeViewState.Success(it.data)
+                    is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
+                    is Result.Loading -> HomeViewState.Loading("Searching for songs...")
                 }
-                .collect { songs ->
-                    homeViewState = HomeViewState.Success(songs)
-                }
+            }.stateIn(viewModelScope)
         }
     }
 }
