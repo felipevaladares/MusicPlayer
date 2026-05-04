@@ -32,7 +32,10 @@ class PlayerViewModel @Inject constructor(
                         PlayerViewState.Error(result.exception?.message ?: "An error occurred while retrieving album songs")
                     }
                     is Result.Loading -> PlayerViewState.Loading("Loading song...")
-                    is Result.Success -> PlayerViewState.Success(result.data)
+                    is Result.Success -> {
+                        repository.markSongAsPlayed(songId)
+                        PlayerViewState.Success(result.data)
+                    }
 
                 }
             }.stateIn(
