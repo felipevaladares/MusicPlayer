@@ -37,6 +37,10 @@ class HomeViewModel @Inject constructor(
     var homeViewState by mutableStateOf<HomeViewState>(HomeViewState.Success(emptyList()))
         private set
 
+    init {
+        loadRecentlyPlayed()
+    }
+
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.SearchQueryChanged -> {
@@ -80,6 +84,18 @@ class HomeViewModel @Inject constructor(
                     is Result.Success -> HomeViewState.Success(it.data)
                     is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
                     is Result.Loading -> HomeViewState.Loading("Searching for songs...")
+                }
+            }.stateIn(viewModelScope)
+        }
+    }
+
+    private fun loadRecentlyPlayed() {
+        viewModelScope.launch(ioDispatcher) {
+            repository.getRecentlyPlayed().asResult().map {
+                homeViewState = when (it) {
+                    is Result.Success -> HomeViewState.Success(it.data)
+                    is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
+                    is Result.Loading -> HomeViewState.Loading("Loading recently played...")
                 }
             }.stateIn(viewModelScope)
         }
