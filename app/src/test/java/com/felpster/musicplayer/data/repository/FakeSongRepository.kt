@@ -12,6 +12,7 @@ class FakeSongRepository : SongRepository {
     private val songsFlow = MutableSharedFlow<List<Song>>()
     private val albumFlow = MutableSharedFlow<Album>()
     private val songFlow = MutableSharedFlow<Song>()
+    private val recentlyPlayedFlow = MutableSharedFlow<List<Song>>()
 
     private var error: Throwable? = null
 
@@ -31,6 +32,10 @@ class FakeSongRepository : SongRepository {
         songFlow.emit(song)
     }
 
+    suspend fun emitRecentlyPlayed(songs: List<Song>) {
+        recentlyPlayedFlow.emit(songs)
+    }
+
     override fun searchSongs(search: String): Flow<List<Song>> = flow {
         error?.let { throw it }
         songsFlow.collect { emit(it) }
@@ -46,12 +51,13 @@ class FakeSongRepository : SongRepository {
         songFlow.collect { emit(it) }
     }
 
-    override fun getRecentlyPlayed(): Flow<List<Song>> {
-        TODO("Not yet implemented")
+    override fun getRecentlyPlayed(): Flow<List<Song>> = flow {
+        error?.let { throw it }
+        recentlyPlayedFlow.collect { emit(it) }
     }
 
     override suspend fun markSongAsPlayed(id: Long) {
-        TODO("Not yet implemented")
+        // No-op for testing
     }
 
     companion object {

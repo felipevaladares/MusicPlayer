@@ -5,6 +5,7 @@ import com.felpster.musicplayer.MainDispatcherRule
 import com.felpster.musicplayer.data.repository.FakeSongRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -26,10 +27,21 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `initial state should be Success with empty list`() {
+    fun `initial state should be Loading while fetching recently played`() = runTest {
+        val state = viewModel.homeViewState
+        assertThat(state).isInstanceOf(HomeViewState.Loading::class.java)
+    }
+
+    @Test
+    fun `initial state should be Success after emitting recently played songs`() = runTest {
+        repository.emitRecentlyPlayed(FakeSongRepository.songsList)
+
+        // Give time for the state to update
+        advanceUntilIdle()
+
         val state = viewModel.homeViewState
         assertThat(state).isInstanceOf(HomeViewState.Success::class.java)
-        assertThat((state as HomeViewState.Success).songs).isEmpty()
+        assertThat((state as HomeViewState.Success).songs).isEqualTo(FakeSongRepository.songsList)
     }
 
     @Test
@@ -77,7 +89,11 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `actionSheetSong should be set when MenuOptionSelected event is triggered`() {
+    fun `actionSheetSong should be set when MenuOptionSelected event is triggered`() = runTest {
+        // First emit recently played to get to Success state
+        repository.emitRecentlyPlayed(FakeSongRepository.songsList)
+        advanceUntilIdle()
+
         val song = FakeSongRepository.songsList[0]
         viewModel.onEvent(HomeEvent.MenuOptionSelected(song))
 
@@ -87,7 +103,11 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `actionSheetSong should be null when MenuOptionDismissed event is triggered`() {
+    fun `actionSheetSong should be null when MenuOptionDismissed event is triggered`() = runTest {
+        // First emit recently played to get to Success state
+        repository.emitRecentlyPlayed(FakeSongRepository.songsList)
+        advanceUntilIdle()
+
         val song = FakeSongRepository.songsList[0]
         viewModel.onEvent(HomeEvent.MenuOptionSelected(song))
         viewModel.onEvent(HomeEvent.MenuOptionDismissed)

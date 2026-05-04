@@ -26,6 +26,7 @@ class PlayerScreenTest : ComposeTest() {
             MusicPlayerTheme {
                 PlayerScreen(
                     viewState = PlayerViewState.Loading(message),
+                    onEvent = {},
                     onBack = {}
                 )
             }
@@ -42,6 +43,7 @@ class PlayerScreenTest : ComposeTest() {
             MusicPlayerTheme {
                 PlayerScreen(
                     viewState = PlayerViewState.Error(errorMessage),
+                    onEvent = {},
                     onBack = {}
                 )
             }
@@ -59,6 +61,7 @@ class PlayerScreenTest : ComposeTest() {
             MusicPlayerTheme {
                 PlayerScreen(
                     viewState = PlayerViewState.Success(song = song),
+                    onEvent = {},
                     onBack = {}
                 )
             }

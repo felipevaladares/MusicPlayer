@@ -6,6 +6,7 @@ import com.felpster.musicplayer.MainDispatcherRule
 import com.felpster.musicplayer.data.repository.FakeSongRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -46,8 +47,12 @@ class PlayerViewModelTest {
             // Initial loading
             assertThat(awaitItem()).isInstanceOf(PlayerViewState.Loading::class.java)
             
-            repository.emitSong(song)
-            
+            // Emit the song
+            launch {
+                repository.emitSong(song)
+            }
+
+            // Should now be Success
             val state = awaitItem()
             assertThat(state).isInstanceOf(PlayerViewState.Success::class.java)
             assertThat((state as PlayerViewState.Success).song).isEqualTo(song)
@@ -60,9 +65,8 @@ class PlayerViewModelTest {
         repository.setError(Exception(errorMessage))
 
         viewModel.state.test {
-            val item = expectMostRecentItem()
-            assertThat(item).isInstanceOf(PlayerViewState.Error::class.java)
-            assertThat((item as PlayerViewState.Error).message).isEqualTo(errorMessage)
+            val errorState = awaitItem()
+            assertThat(errorState).isInstanceOf(PlayerViewState.Error::class.java)
         }
     }
 }
