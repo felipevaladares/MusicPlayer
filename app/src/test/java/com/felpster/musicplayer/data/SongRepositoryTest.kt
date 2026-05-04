@@ -1,6 +1,8 @@
 package com.felpster.musicplayer.data
 
 import app.cash.turbine.test
+import com.felpster.musicplayer.data.local.SongDao
+import com.felpster.musicplayer.data.local.SongEntity
 import com.felpster.musicplayer.data.remote.AlbumResponse
 import com.felpster.musicplayer.data.remote.ItunesApi
 import com.felpster.musicplayer.data.remote.RemoteAlbum
@@ -9,7 +11,9 @@ import com.felpster.musicplayer.data.remote.SearchResponse
 import com.felpster.musicplayer.data.remote.SongResponse
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -18,10 +22,22 @@ class SongRepositoryTest {
 
     private lateinit var repository: SongRepositoryImpl
     private val api: ItunesApi = mockk()
+    private val songDao: SongDao = mockk()
+    private var cachedSongs = listOf<SongEntity>()
 
     @Before
     fun setUp() {
-        repository = SongRepositoryImpl(api)
+        repository = SongRepositoryImpl(api, songDao)
+        cachedSongs = emptyList()
+        every { songDao.getSong(any()) } returns flow { emit(null) }
+        every { songDao.searchSongs(any()) } returns flow {
+            emit(cachedSongs)
+        }
+        coEvery { songDao.insertSongs(any()) } answers {
+            // Simulate database storage by updating cachedSongs
+            @Suppress("UNCHECKED_CAST")
+            cachedSongs = firstArg() as List<SongEntity>
+        }
     }
 
     @Test

@@ -46,6 +46,14 @@ class FakeSongRepository : SongRepository {
         songFlow.collect { emit(it) }
     }
 
+    override fun getRecentlyPlayed(): Flow<List<Song>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun markSongAsPlayed(id: Long) {
+        TODO("Not yet implemented")
+    }
+
     companion object {
         val songsList = listOf(
             Song(1L, "Song 1", "Artist 1", 10L, "url1"),
