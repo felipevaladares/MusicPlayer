@@ -51,7 +51,7 @@ MusicPlayer/
 ### Prerequisites
 
 - Android Studio Arctic Fox or later
-- JDK 21 or later
+- JDK 17 or later
 - Android SDK API 28+
 
 ### Installation
