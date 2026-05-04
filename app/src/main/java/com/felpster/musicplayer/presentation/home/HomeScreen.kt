@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.felpster.core_ui.components.AppBar
@@ -25,6 +26,10 @@ import com.felpster.musicplayer.domain.model.Song
 import com.felpster.musicplayer.presentation.components.MoreOptionsSheet
 import com.felpster.musicplayer.presentation.components.SearchBar
 import com.felpster.musicplayer.presentation.components.SongItem
+import com.felpster.musicplayer.presentation.home.HomeLayoutTags.EMPTY_STATE
+import com.felpster.musicplayer.presentation.home.HomeLayoutTags.HOME_LAYOUT
+import com.felpster.musicplayer.presentation.home.HomeLayoutTags.SEARCH_BAR
+import com.felpster.musicplayer.presentation.home.HomeLayoutTags.SONG_LIST
 
 sealed class HomeViewState {
     data class Success(val songs: List<Song>, val actionSheetSong: Song? = null) : HomeViewState()
@@ -57,7 +62,9 @@ fun HomeScreen(
         ) {
             val searchQuery = remember { mutableStateOf("") }
             SearchBar(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(SEARCH_BAR),
                 query = searchQuery.value,
                 onQueryChange = {
                     searchQuery.value = it
@@ -103,6 +110,7 @@ fun HomeScreen(
 fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
+            .testTag(HOME_LAYOUT)
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
@@ -112,11 +120,14 @@ fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier
                 text = "No songs found, try searching for a different artist or song",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier
+                    .testTag(EMPTY_STATE)
+                    .padding(top = 8.dp)
             )
         } else {
             LazyColumn(
                 modifier = Modifier
+                    .testTag(SONG_LIST)
                     .fillMaxSize()
             ) {
                 items(songs) { song ->
@@ -129,6 +140,13 @@ fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier
             }
         }
     }
+}
+
+object HomeLayoutTags {
+    const val HOME_LAYOUT = "HomeLayoutTags_content"
+    const val SONG_LIST = "HomeLayoutTags_song_list"
+    const val EMPTY_STATE = "HomeLayoutTags_empty_state"
+    const val SEARCH_BAR = "HomeLayoutTags_search_bar"
 }
 
 @Preview
