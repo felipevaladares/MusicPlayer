@@ -96,4 +96,16 @@ class HomeViewModelTest {
         assertThat(state).isInstanceOf(HomeViewState.Success::class.java)
         assertThat((state as HomeViewState.Success).actionSheetSong).isNull()
     }
+
+    @Test
+    fun `state should be Error when repository fails`() = runTest {
+        val errorMessage = "Database Error"
+        repository.setError(Exception(errorMessage))
+
+        viewModel.onEvent(HomeEvent.SearchQueryChanged("song"))
+
+        val item = viewModel.homeViewState
+        assertThat(item).isInstanceOf(HomeViewState.Error::class.java)
+        assertThat((item as HomeViewState.Error).message).isEqualTo(errorMessage)
+    }
 }

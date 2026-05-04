@@ -11,6 +11,12 @@ class FakeSongRepository : SongRepository {
 
     private val songsFlow = MutableSharedFlow<List<Song>>()
 
+    private var error: Throwable? = null
+
+    fun setError(throwable: Throwable?) {
+        error = throwable
+    }
+
     suspend fun emitSongs(songs: List<Song>) {
         songsFlow.emit(songs)
     }
@@ -40,6 +46,19 @@ class FakeSongRepository : SongRepository {
                 albumArtUrl = ""
             )
         )
+    }
+
+    override fun searchSongs(search: String): Flow<List<Song>> = flow {
+        error?.let { throw it }
+        songsFlow.collect { emit(it) }
+    }
+
+    override fun getAlbumWithSongs(albumId: Long): Flow<Album> = flow {
+        error?.let { throw it }
+    }
+
+    override fun getSong(id: Long): Flow<Song> = flow {
+        error?.let { throw it }
     }
 
     companion object {
