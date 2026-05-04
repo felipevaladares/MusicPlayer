@@ -4,12 +4,12 @@ import com.felpster.musicplayer.data.local.SongDao
 import com.felpster.musicplayer.data.local.toDomain
 import com.felpster.musicplayer.data.local.toEntity
 import com.felpster.musicplayer.data.remote.ItunesApi
+import com.felpster.musicplayer.data.remote.toDomain
 import com.felpster.musicplayer.domain.SongRepository
 import com.felpster.musicplayer.domain.model.Album
 import com.felpster.musicplayer.domain.model.Song
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -28,16 +28,8 @@ class SongRepositoryImpl @Inject constructor(
         // 2. Fetch fresh songs from network
         try {
             val response = api.getSongs(search)
-            val songs = response.results.map { result ->
-                Song(
-                    id = result.trackId,
-                    title = result.trackName,
-                    artist = result.artistName,
-                    albumId = result.collectionId,
-                    albumArtUrl = result.artworkUrl100,
-                    durationMillis = result.trackTimeMillis
-                )
-            }
+            val songs = response.results.map { it.toDomain() }
+
             // 3. Save to database (will trigger localFlow)
             songDao.insertSongs(songs.map { it.toEntity() })
         } catch (e: Exception) {
@@ -56,16 +48,7 @@ class SongRepositoryImpl @Inject constructor(
                 artUrl = response.album.artworkUrl100,
                 artistId = response.album.artistId,
                 artistName = response.album.artistName,
-                songs = response.results.map { result ->
-                    Song(
-                        id = result.trackId,
-                        title = result.trackName,
-                        artist = result.artistName,
-                        albumId = result.collectionId,
-                        albumArtUrl = result.artworkUrl100,
-                        durationMillis = result.trackTimeMillis
-                    )
-                }
+                songs = response.results.map { it.toDomain() }
             )
             emit(album)
         }
@@ -76,16 +59,8 @@ class SongRepositoryImpl @Inject constructor(
                 entity.toDomain()
             } else {
                 // Fetch from network if not in DB
-                val result = api.getSong(id).results.firstOrNull()
-                    ?: throw IllegalArgumentException("Song with ID $id not found")
-                val song = Song(
-                    id = result.trackId,
-                    title = result.trackName,
-                    artist = result.artistName,
-                    albumId = result.collectionId,
-                    albumArtUrl = result.artworkUrl100,
-                    durationMillis = result.trackTimeMillis
-                )
+                val result = api.getSong(id).results.firstOrNull() ?: throw IllegalArgumentException("Song with ID $id not found")
+                val song = result.toDomain()
                 songDao.insertSongs(listOf(song.toEntity()))
                 song
             }

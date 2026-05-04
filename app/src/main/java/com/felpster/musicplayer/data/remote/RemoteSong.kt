@@ -1,5 +1,6 @@
 package com.felpster.musicplayer.data.remote
 
+import com.felpster.musicplayer.domain.model.Song
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -97,4 +98,13 @@ data class RemoteSong(
 
     @field:Json(name = "isStreamable")
     val isStreamable: Boolean? = null
+)
+
+fun RemoteSong.toDomain() = Song(
+    id = trackId,
+    title = trackName,
+    artist = artistName,
+    albumId = collectionId,
+    albumArtUrl = artworkUrl100,
+    durationMillis = trackTimeMillis
 )
