@@ -14,7 +14,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,13 +43,13 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        loadRecentlyPlayed()
+       loadRecentlyPlayed()
     }
 
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.SearchQueryChanged -> {
-                val query = event.query.trim().lowercase()
+                val query = event.query.trim()
 
                 if (query.isEmpty()) {
                     homeViewState = HomeViewState.Success(emptyList())
@@ -79,25 +84,26 @@ class HomeViewModel @Inject constructor(
 
     private fun searchSongs(query: String) {
         viewModelScope.launch(ioDispatcher) {
-            repository.searchSongs(query).asResult().map {
-                homeViewState = when (it) {
-                    is Result.Success -> HomeViewState.Success(it.data)
-                    is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
-                    is Result.Loading -> HomeViewState.Loading("Searching for songs...")
-                }
-            }.stateIn(viewModelScope)
+            repository.searchSongs(query)
+                .debounce(800L)
+                .distinctUntilChanged()
+                .asResult()
+                .map {
+                    homeViewState = when (it) {
+                        is Result.Success -> HomeViewState.Success(it.data)
+                        is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
+                        is Result.Loading -> HomeViewState.Loading("Searching for songs...")
+                    }
+                }.stateIn(viewModelScope)
         }
     }
 
     private fun loadRecentlyPlayed() {
         viewModelScope.launch(ioDispatcher) {
-            repository.getRecentlyPlayed().asResult().map {
-                homeViewState = when (it) {
-                    is Result.Success -> HomeViewState.Success(it.data)
-                    is Result.Error -> HomeViewState.Error(it.exception?.message ?: "An unknown error occurred")
-                    is Result.Loading -> HomeViewState.Loading("Loading recently played...")
-                }
-            }.stateIn(viewModelScope)
+            repository.getRecentlyPlayed()
+                .onStart { homeViewState = HomeViewState.Loading("Loading recently played songs...") }
+                .catch { homeViewState = HomeViewState.Success(emptyList()) }
+                .map { homeViewState = HomeViewState.Success(it) }.firstOrNull()
         }
     }
 }

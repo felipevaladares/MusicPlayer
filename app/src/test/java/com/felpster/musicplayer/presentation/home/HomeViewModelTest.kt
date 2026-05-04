@@ -50,6 +50,8 @@ class HomeViewModelTest {
 
         repository.emitSongs(FakeSongRepository.songsList)
 
+        advanceUntilIdle()
+
         val state = viewModel.homeViewState
         assertThat(state).isInstanceOf(HomeViewState.Success::class.java)
         assertThat((state as HomeViewState.Success).songs).isEqualTo(FakeSongRepository.songsList)
