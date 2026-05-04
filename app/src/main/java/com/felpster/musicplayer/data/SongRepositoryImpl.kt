@@ -9,7 +9,7 @@ import com.felpster.musicplayer.domain.SongRepository
 import com.felpster.musicplayer.domain.model.Album
 import com.felpster.musicplayer.domain.model.Song
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -21,22 +21,19 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun searchSongs(search: String): Flow<List<Song>> = flow {
         // 1. Emit existing cached songs matching the query
-        val localFlow = songDao.searchSongs(search).map { entities ->
-            entities.map { it.toDomain() }
-        }
+        val localSongs = songDao.searchSongs(search).first().map { it.toDomain() }
+        emit(localSongs)
 
         // 2. Fetch fresh songs from network
-        try {
-            val response = api.getSongs(search)
-            val songs = response.results.map { it.toDomain() }
+        val response = api.getSongs(search)
+        val networkSongs = response.results.map { it.toDomain() }
 
-            // 3. Save to database (will trigger localFlow)
-            songDao.insertSongs(songs.map { it.toEntity() })
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // 3. Emit combined list of songs, ensuring no duplicates
+        val combined = (localSongs + networkSongs).distinctBy { it.id }
+        emit(combined)
 
-        emitAll(localFlow)
+        // 4. Save to database
+        songDao.insertSongs(networkSongs.map { it.toEntity() })
     }
 
     override fun getAlbumWithSongs(albumId: Long) =
