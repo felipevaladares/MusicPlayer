@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +52,7 @@ import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
+import com.felpster.musicplayer.presentation.player.PlayerLayoutTags.PLAYER_LAYOUT
 import kotlinx.coroutines.delay
 
 sealed class PlayerViewState {
@@ -113,9 +115,11 @@ fun PlayerView(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = modifier
+            .testTag(PLAYER_LAYOUT)
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -129,7 +133,7 @@ fun PlayerView(
             placeholder = painterResource(id = R.drawable.ic_musical_note),
             error = painterResource(id = R.drawable.ic_musical_note),
             contentDescription = song.title,
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Fit
         )
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -271,6 +275,10 @@ private fun formatTime(seconds: Long): String {
     val min = seconds / 60
     val sec = seconds % 60
     return "%d:%02d".format(min, sec)
+}
+
+object PlayerLayoutTags {
+    const val PLAYER_LAYOUT = "PlayerLayoutTags_content"
 }
 
 @Preview
