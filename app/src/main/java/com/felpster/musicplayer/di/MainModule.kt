@@ -11,6 +11,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -22,6 +24,9 @@ abstract class MainModule {
     abstract fun bindsSongRepository(it: SongRepositoryImpl): SongRepository
 
     companion object {
+
+        @Provides
+        fun provideIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 
         @Provides
         fun provideUserApi(): ItunesApi {

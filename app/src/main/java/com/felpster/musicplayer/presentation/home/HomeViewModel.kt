@@ -9,6 +9,7 @@ import com.felpster.musicplayer.domain.SongRepository
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToAlbum
 import com.felpster.musicplayer.presentation.home.HomeNavEvent.NavigateToPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
@@ -24,6 +25,7 @@ sealed interface HomeNavEvent {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: SongRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): ViewModel() {
 
     private val navigationEventsChannel = Channel<HomeNavEvent>(Channel.UNLIMITED)
@@ -69,7 +71,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun searchSongs(query: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             repository.searchSongs(query)
                 .catch {
                     it.printStackTrace()

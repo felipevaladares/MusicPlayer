@@ -22,7 +22,7 @@ class HomeViewModelTest {
     @Before
     fun setUp() {
         repository = FakeSongRepository()
-        viewModel = HomeViewModel(repository)
+        viewModel = HomeViewModel(repository, mainDispatcherRule.testDispatcher)
     }
 
     @Test
