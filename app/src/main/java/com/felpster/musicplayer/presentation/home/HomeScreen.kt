@@ -50,60 +50,62 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = { AppBar(title = "Songs") },
     ) { innerPadding ->
-        when (viewState) {
-            is HomeViewState.Success -> {
-                HomeView(
-                    songs = viewState.songs,
-                    onEvent = onEvent,
-                    modifier = Modifier.padding(innerPadding),
-                )
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            val searchQuery = remember { mutableStateOf("") }
+            SearchBar(
+                modifier = Modifier.fillMaxWidth(),
+                query = searchQuery.value,
+                onQueryChange = {
+                    searchQuery.value = it
+                    onEvent(HomeEvent.SearchQueryChanged(it))
+                },
+            )
 
-                viewState.actionSheetSong?.let { song ->
-                    MoreOptionsSheet(
-                        song = song,
-                        onDismissRequest = { onEvent(HomeEvent.MenuOptionDismissed) },
-                        onViewAlbum = { onEvent(HomeEvent.AlbumOptionSelected(song)) }
+            when (viewState) {
+                is HomeViewState.Success -> {
+                    HomeView(
+                        songs = viewState.songs,
+                        onEvent = onEvent,
+                    )
+
+                    viewState.actionSheetSong?.let { song ->
+                        MoreOptionsSheet(
+                            song = song,
+                            onDismissRequest = { onEvent(HomeEvent.MenuOptionDismissed) },
+                            onViewAlbum = { onEvent(HomeEvent.AlbumOptionSelected(song)) }
+                        )
+                    }
+                }
+
+                is HomeViewState.Error -> {
+                    ErrorView(
+                        message = viewState.message,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+
+                is HomeViewState.Loading -> {
+                    LoadingView(
+                        message = viewState.message,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
-
-            is HomeViewState.Error -> {
-                ErrorView(
-                    message = viewState.message,
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                )
-            }
-
-            is HomeViewState.Loading -> {
-                LoadingView(
-                    message = viewState.message,
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                )
-            }
         }
     }
-
 }
 
 @Composable
 fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier = Modifier) {
-    val searchQuery = remember { mutableStateOf("") }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // Search Bar
-        SearchBar(
-            modifier = Modifier.fillMaxWidth(),
-            query = searchQuery.value,
-            onQueryChange = {
-                searchQuery.value = it
-                onEvent(HomeEvent.SearchQueryChanged(it))
-            },
-        )
-
         // Song List or Empty State
         if (songs.isEmpty()) {
             Text(
