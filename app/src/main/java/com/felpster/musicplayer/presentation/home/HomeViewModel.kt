@@ -52,7 +52,7 @@ class HomeViewModel @Inject constructor(
                 val query = event.query.trim()
 
                 if (query.isEmpty()) {
-                    homeViewState = HomeViewState.Success(emptyList())
+                    loadRecentlyPlayed()
                 } else {
                     searchSongs(query)
                 }
@@ -79,6 +79,10 @@ class HomeViewModel @Inject constructor(
                     else -> currentState
                 }
             }
+
+            HomeEvent.PullToRefresh -> {
+                loadRecentlyPlayed()
+            }
         }
     }
 
@@ -101,6 +105,8 @@ class HomeViewModel @Inject constructor(
     private fun loadRecentlyPlayed() {
         viewModelScope.launch(ioDispatcher) {
             repository.getRecentlyPlayed()
+                .debounce(800L)
+                .distinctUntilChanged()
                 .onStart { homeViewState = HomeViewState.Loading("Loading recently played songs...") }
                 .catch { homeViewState = HomeViewState.Success(emptyList()) }
                 .map { homeViewState = HomeViewState.Success(it) }.firstOrNull()
