@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,10 +62,18 @@ sealed class PlayerViewState {
     data class Loading(val message: String) : PlayerViewState()
 }
 
+sealed interface PlayerEvent {
+    data class PlayPauseToggled(val song: Song) : PlayerEvent
+    data class NextSongRequested(val currentSong: Song) : PlayerEvent
+    data class PreviousSongRequested(val currentSong: Song) : PlayerEvent
+    data class RepeatToggled(val isRepeating: Boolean) : PlayerEvent
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
     viewState: PlayerViewState,
+    onEvent: (PlayerEvent) -> Unit,
     onBack: () -> Unit,
 ) {
     Scaffold(
@@ -88,6 +97,7 @@ fun PlayerScreen(
             is PlayerViewState.Success -> {
                 PlayerView(
                     song = viewState.song,
+                    onEvent = onEvent,
                     modifier = Modifier.padding(innerPadding),
                 )
             }
@@ -112,7 +122,8 @@ fun PlayerScreen(
 @Composable
 fun PlayerView(
     song: Song,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEvent: (PlayerEvent) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -160,7 +171,7 @@ fun PlayerView(
         Spacer(modifier = Modifier.height(32.dp))
 
         // Playback Controls
-        PlayerControls()
+        PlayerControls(song, onEvent)
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
@@ -217,7 +228,7 @@ private fun PlayerSlider(song: Song) {
 }
 
 @Composable
-private fun PlayerControls() {
+private fun PlayerControls(song: Song, onEvent: (PlayerEvent) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
@@ -230,7 +241,7 @@ private fun PlayerControls() {
                 .background(Color(0xFF222222)),
             contentAlignment = Alignment.Center
         ) {
-            IconButton(onClick = { /* Play/Pause */ }) {
+            IconButton(onClick = { PlayerEvent.PlayPauseToggled(song) }) {
                 Icon(
                     imageVector = Icons.Default.PlayArrow, // Swap with Pause if playing
                     contentDescription = "Play",
@@ -240,7 +251,7 @@ private fun PlayerControls() {
             }
         }
 
-        IconButton(onClick = { /* Previous */ }) {
+        IconButton(onClick = { onEvent(PlayerEvent.PreviousSongRequested(song)) }) {
             Icon(
                 imageVector = Icons.Default.FastRewind,
                 contentDescription = "Previous",
@@ -249,7 +260,7 @@ private fun PlayerControls() {
             )
         }
 
-        IconButton(onClick = { /* Next */ }) {
+        IconButton(onClick = { PlayerEvent.NextSongRequested(song) }) {
             Icon(
                 imageVector = Icons.Default.FastForward,
                 contentDescription = "Next",
@@ -260,7 +271,13 @@ private fun PlayerControls() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        IconButton(onClick = { /* Repeat */ }) {
+        var isRepeating by remember { mutableStateOf(false) }
+        IconButton(
+            onClick = {
+                isRepeating = !isRepeating
+                PlayerEvent.RepeatToggled(isRepeating)
+            }
+        ) {
             Icon(
                 imageVector = Icons.Default.Repeat,
                 contentDescription = "Repeat",
@@ -287,6 +304,7 @@ fun PlayerViewPreview() {
     MusicPlayerTheme {
         PlayerScreen(
             viewState = PlayerViewState.Success(song = mockSongs.first()),
+            onEvent = {},
             onBack = {}
         )
     }

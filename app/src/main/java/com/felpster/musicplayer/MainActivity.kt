@@ -101,9 +101,11 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             route = Destination.Player.route,
             arguments = listOf(navArgument("songId") { type = NavType.LongType })
         ){
-            val uiState by hiltViewModel<PlayerViewModel>().state.collectAsStateWithLifecycle()
+            val viewModel = hiltViewModel<PlayerViewModel>()
+            val uiState by viewModel.state.collectAsStateWithLifecycle()
             PlayerScreen(
                 viewState = uiState,
+                onEvent = viewModel::onEvent,
                 onBack = { navController.popBackStack() }
             )
         }

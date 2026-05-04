@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +29,6 @@ class PlayerViewModel @Inject constructor(
             .map { result ->
                 when (result) {
                     is Result.Error -> {
-                        result.exception?.printStackTrace()
                         PlayerViewState.Error(result.exception?.message ?: "An error occurred while retrieving album songs")
                     }
                     is Result.Loading -> PlayerViewState.Loading("Loading song...")
@@ -40,5 +40,16 @@ class PlayerViewModel @Inject constructor(
                 initialValue = PlayerViewState.Loading("Loading song..."),
                 started = SharingStarted.WhileSubscribed(5_000),
             )
+    }
+
+    fun onEvent(event: PlayerEvent) {
+        viewModelScope.launch {
+            when (event) {
+                is PlayerEvent.PlayPauseToggled -> TODO()
+                is PlayerEvent.NextSongRequested -> TODO()
+                is PlayerEvent.PreviousSongRequested -> TODO()
+                is PlayerEvent.RepeatToggled -> TODO()
+            }
+        }
     }
 }
