@@ -11,6 +11,14 @@ A modern Android music player app built with Kotlin and Jetpack Compose that all
 - **Pull to Refresh**: Refresh search results with pull-to-refresh functionality
 - **Modern UI**: Built with Jetpack Compose for a smooth, responsive interface
 
+## TODO / Future Enhancements
+- **Screenshot tests**: Add tests using [paparazzi](github.com/cashapp/paparazzi) to ensure UI consistency and catch visual regressions
+- **Design System**: Implement a design system for consistent styling across the app, including colors, typography, and spacing
+- **Album**: Play songs from the album screen
+- **Player controls**: Implement basic player controls (play, pause, skip)
+- **Pagination**: Implement pagination for search results to load more songs as the user scrolls
+- **Error Handling**: Improve error handling and user feedback for network issues or empty search results
+
 ## Tech Stack
 
 - **Language**: Kotlin
