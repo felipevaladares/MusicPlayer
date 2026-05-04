@@ -47,7 +47,7 @@ sealed interface HomeEvent {
     data class MenuOptionSelected(val song: Song) : HomeEvent
     data class AlbumOptionSelected(val song: Song) : HomeEvent
     data object MenuOptionDismissed : HomeEvent
-    data object PullToRefresh : HomeEvent
+    data class PullToRefresh(val searchQuery: String) : HomeEvent
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,6 +82,7 @@ fun HomeScreen(
                     HomeView(
                         songs = viewState.songs,
                         onEvent = onEvent,
+                        onPullToRefresh = { onEvent(HomeEvent.PullToRefresh(searchQuery.value)) },
                     )
 
                     viewState.actionSheetSong?.let { song ->
@@ -112,7 +113,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier = Modifier) {
+fun HomeView(
+    songs: List<Song>,
+    onEvent: (HomeEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    onPullToRefresh: () -> Unit
+) {
     Column(
         modifier = modifier
             .testTag(HOME_LAYOUT)
@@ -137,7 +143,7 @@ fun HomeView(songs: List<Song>, onEvent: (HomeEvent) -> Unit, modifier: Modifier
             PullToRefreshBox(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = { onEvent(HomeEvent.PullToRefresh) }
+                onRefresh = onPullToRefresh
             ) {
                 LazyColumn(
                     modifier = Modifier

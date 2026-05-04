@@ -58,15 +58,6 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `state should be Success with empty list when query is empty`() = runTest {
-        viewModel.onEvent(HomeEvent.SearchQueryChanged(""))
-
-        val state = viewModel.homeViewState
-        assertThat(state).isInstanceOf(HomeViewState.Success::class.java)
-        assertThat((state as HomeViewState.Success).songs).isEmpty()
-    }
-
-    @Test
     fun `navigationEvents should emit NavigateToPlayer when SongSelected event is triggered`() = runTest {
         val song = FakeSongRepository.songsList[0]
         

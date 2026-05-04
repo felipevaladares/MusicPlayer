@@ -73,15 +73,19 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            HomeEvent.MenuOptionDismissed -> {
+            is HomeEvent.MenuOptionDismissed -> {
                 homeViewState = when (val currentState = homeViewState) {
                     is HomeViewState.Success -> currentState.copy(actionSheetSong = null)
                     else -> currentState
                 }
             }
 
-            HomeEvent.PullToRefresh -> {
-                loadRecentlyPlayed()
+            is HomeEvent.PullToRefresh -> {
+                if (event.searchQuery.trim().isNotEmpty()) {
+                    searchSongs(event.searchQuery)
+                } else {
+                    loadRecentlyPlayed()
+                }
             }
         }
     }

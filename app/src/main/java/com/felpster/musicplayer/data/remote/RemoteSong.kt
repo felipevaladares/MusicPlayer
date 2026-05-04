@@ -64,7 +64,7 @@ data class RemoteSong(
     val trackPrice: Double? = null,
 
     @field:Json(name = "releaseDate")
-    val releaseDate: String,
+    val releaseDate: String? = null,
 
     @field:Json(name = "collectionExplicitness")
     val collectionExplicitness: String,
