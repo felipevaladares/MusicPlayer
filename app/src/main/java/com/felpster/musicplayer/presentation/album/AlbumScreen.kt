@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +39,8 @@ import com.felpster.core_ui.components.LoadingView
 import com.felpster.core_ui.theme.MusicPlayerTheme
 import com.felpster.musicplayer.commons.mockSongs
 import com.felpster.musicplayer.domain.model.Song
+import com.felpster.musicplayer.presentation.album.AlbumLayoutTags.ALBUM_LAYOUT
+import com.felpster.musicplayer.presentation.album.AlbumLayoutTags.SONG_LIST
 import com.felpster.musicplayer.presentation.components.SongItem
 
 sealed class AlbumViewState {
@@ -105,7 +108,10 @@ fun AlbumView(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(16.dp),
+        modifier = modifier
+            .testTag(ALBUM_LAYOUT)
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -147,12 +153,21 @@ fun AlbumView(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Song List
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .testTag(SONG_LIST)
+                .fillMaxSize()
+        ) {
             items(viewState.songs) { song ->
                 SongItem(song = song)
             }
         }
     }
+}
+
+object AlbumLayoutTags {
+    const val ALBUM_LAYOUT = "AlbumLayoutTags_content"
+    const val SONG_LIST = "AlbumLayoutTags_song_list"
 }
 
 @Preview
