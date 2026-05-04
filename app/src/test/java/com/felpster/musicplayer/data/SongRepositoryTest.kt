@@ -49,6 +49,9 @@ class SongRepositoryTest {
         )
 
         repository.searchSongs("query").test {
+            val resultFromCache = awaitItem()
+            assertThat(resultFromCache).hasSize(0)
+
             val result = awaitItem()
             assertThat(result).hasSize(1)
             assertThat(result[0].id).isEqualTo(1L)
