@@ -10,4 +10,8 @@ interface SongRepository {
     fun getAlbumWithSongs(albumId: Long): Flow<Album>
 
     fun getSong(id: Long): Flow<Song>
+
+    fun getRecentlyPlayed(): Flow<List<Song>>
+
+    suspend fun markSongAsPlayed(id: Long)
 }
